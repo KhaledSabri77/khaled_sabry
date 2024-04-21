@@ -1,0 +1,52 @@
+using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+public class PlayerController : MonoBehaviour
+{
+    public Rigidbody2D rb;
+    public float moveSpeed = 5f;
+    public float jumpForce = 10f;
+    public Transform groundCheck;
+    public LayerMask groundLayer;
+    public BoxCollider2D boxCollider; // Changed to public
+    Animator animator;
+
+    public bool isGrounded; // Changed to public for debugging or other purposes
+
+    private void Start()
+    {
+        rb = GetComponent<Rigidbody2D>();
+        boxCollider = GetComponent<BoxCollider2D>(); // No longer needed to get this component as it's public
+        animator = GetComponent<Animator>();
+    }
+
+    private void FixedUpdate()
+    {
+        // Check if the player is grounded
+        isGrounded = Physics2D.BoxCast(boxCollider.bounds.center, boxCollider.bounds.size, 0f, Vector2.down, 0.1f, groundLayer);
+
+        // Horizontal movement
+        float moveInput = Input.GetAxisRaw("Horizontal");
+        //idle
+        if (moveInput == 0f)
+            rb.velocity = new Vector2(0, rb.velocity.y);
+        //right
+        else if (moveInput > 0f)
+            rb.velocity = new Vector2(moveInput * moveSpeed, rb.velocity.y);
+        //left
+        else
+            rb.velocity = new Vector2(moveInput * moveSpeed, rb.velocity.y);
+
+        // Jumping
+        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
+        {
+            rb.velocity = new Vector2(rb.velocity.x, jumpForce);
+        }
+        animator.SetFloat("moveSpeed", Mathf.Abs(rb.velocity.x));
+        animator.SetBool("isGrounded", isGrounded);
+
+
+
+    }   
+}
